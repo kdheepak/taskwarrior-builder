@@ -1,0 +1,33 @@
+name: BinaryBuilder
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          # - i686-linux-gnu
+          - x86_64-linux-gnu
+          # - aarch64-linux-gnu
+          # - arm-linux-gnueabihf
+          # - powerpc64le-linux-gnu
+          # - i686-linux-musl
+          # - x86_64-linux-musl
+          # - aarch64-linux-musl
+          # - arm-linux-musleabihf
+          # - x86_64-apple-darwin14
+          # - x86_64-unknown-freebsd11.1
+          # - i686-w64-mingw32
+          # - x86_64-w64-mingw32
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: "1"
+      - name: Setup BinaryBuilder
+        env:
+          BINARYBUILDER_RUNNER: privileged
+          BINARYBUILDER_AUTOMATIC_APPLE: true
+        run: |
+          julia --color=yes --project -e 'using Pkg; Pkg.activate("."); Pkg.instantiate()'
+          julia --color=yes --project build-tarballs.jl --verbose ${{ matrix.target }}
